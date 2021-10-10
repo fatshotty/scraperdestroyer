@@ -31,6 +31,8 @@ const Telegram = new Slimbot(BOT_ID);
 
 async function start() {
 
+  Logger.log('Start scraping');
+
   let LAST_POST_ID = await readFile();
   if ( LAST_POST_ID ) {
     LAST_POST_ID = parseInt( LAST_POST_ID );
@@ -108,8 +110,6 @@ async function notify(article, firstPage, secondPage) {
   });
 }
 
-
-start();
 
 // notify(
 

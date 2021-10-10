@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const Services = require('./services');
 const Logger = require('./logger');
 const Slimbot = require('slimbot');
@@ -7,6 +9,8 @@ const Path = require('path');
 const CronJob = require('cron').CronJob;
 
 
+const BOT_ID = process.env.BOT_ID;
+const CHAT_ID = process.env.CHAT_ID;
 
 const FILE_PATH = Path.join( __dirname, 'last_post.dat');
 

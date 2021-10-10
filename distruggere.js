@@ -104,7 +104,7 @@ async function notify(article, firstPage, secondPage) {
       await send(article.thumb, opts);
       await send(firstPage.image, {...opts, caption: firstPage.subtitle});
       await send(secondPage.image, {...opts, caption: secondPage.subtitle});
-      await send(CHAT_ID, '➖➖➖➖➖➖➖➖➖');
+      await Telegram.sendMessage(CHAT_ID, '➖➖➖➖➖➖➖➖➖');
       Logger.info('correctly notified on telegram');
     } catch( e ) {
       Logger.warn('cannot notify', e);

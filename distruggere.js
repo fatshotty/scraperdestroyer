@@ -97,16 +97,27 @@ async function notify(article, firstPage, secondPage) {
       parse_mode: "html",
       disable_web_page_preview: false,
       disable_notification: false,
-      // caption: [`${firstPage.subtitle || ''}`, `---`, `<i>${secondPage.subtitle || ''}</i>`].join('\n')
     };
 
-    await Telegram.sendPhoto(CHAT_ID, article.thumb, opts);
-    await Telegram.sendPhoto(CHAT_ID, firstPage.image, {...opts, caption: firstPage.subtitle});
-    await Telegram.sendPhoto(CHAT_ID, secondPage.image, {...opts, caption: secondPage.subtitle});
-    await Telegram.sendMessage(CHAT_ID, '➖➖➖➖➖➖➖➖➖');
+    try {
 
-    Logger.info('correctly notified on telegram');
+      await send(article.thumb, opts);
+      await send(firstPage.image, {...opts, caption: firstPage.subtitle});
+      await send(secondPage.image, {...opts, caption: secondPage.subtitle});
+      await send(CHAT_ID, '➖➖➖➖➖➖➖➖➖');
+      Logger.info('correctly notified on telegram');
+    } catch( e ) {
+      Logger.warn('cannot notify', e);
+    }
+    
     setTimeout(resolve, 2000);
+  });
+}
+
+async function send(img, opts) {
+  return new Promise( (resolve,reject) => {
+    await Telegram.sendPhoto(CHAT_ID, img, opts);
+    setTimeout(resolve, 1000);
   });
 }
 

@@ -115,7 +115,7 @@ async function notify(article, firstPage, secondPage) {
 }
 
 async function send(img, opts) {
-  return new Promise( (resolve,reject) => {
+  return new Promise( async  (resolve,reject) => {
     await Telegram.sendPhoto(CHAT_ID, img, opts);
     setTimeout(resolve, 1000);
   });

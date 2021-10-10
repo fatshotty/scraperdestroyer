@@ -1,0 +1,17 @@
+{
+  "name": "distruggere",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "fatshotty",
+  "license": "ISC",
+  "dependencies": {
+    "got": "^11.8.2",
+    "jsdom": "^18.0.0",
+    "node-cron": "^3.0.0",
+    "slimbot": "^5.1.0"
+  }
+}

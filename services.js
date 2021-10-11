@@ -1,6 +1,14 @@
+require('dotenv').config();
 const {request} = require('./request');
 const Logger = require('./logger');
 const {JSDOM} = require('jsdom');
+
+const { Telegraf } = require('telegraf');
+
+const BOT_ID = process.env.BOT_ID;
+const CHAT_ID = process.env.CHAT_ID;
+
+const BOT = new Telegraf(BOT_ID)
 
 
 async function scrapeHome() {
@@ -177,4 +185,59 @@ async function scrapeOlder(last_post_id) {
   return tot;
 }
 
-module.exports = {scrapeHome, readArticleOrComment, scrapeOlder}
+
+async function notifyChannel(media) {
+
+  async function noty() {
+    return new Promise( async (resolve, reject) => {
+      try {
+        // Logger.log('notifying', media);
+        await BOT.telegram.sendMediaGroup(CHAT_ID, media);
+        resolve(true);
+      } catch (e) {
+        let rsp = e.response;
+        if ( rsp ) {
+          let timeout = null;
+          if ( e.code == 429 ) {
+            let parm = rsp.parameters;
+            if ( parm.retry_after ) {
+              timeout = parm.retry_after;
+            }
+          } else if ( e.code == 400 && rsp.description == 'Bad Request: group send failed' ) {
+            timeout = 30;
+          }
+          if ( timeout ) {
+            setTimeout( () => {
+              resolve(false);
+            }, (timeout + 1) * 1000);
+            Logger.log('wait for', timeout, 'secs');
+            return;
+          }
+        }
+        reject(e);
+      }
+    });
+  }
+
+  try {
+    let res = await noty();
+    if ( res === false ) {
+      await noty();
+    }
+  } catch(e) {
+    Logger.warn('error notifying', e);
+    Logger.warn( JSON.stringify(media) );
+    throw e;
+  }
+
+}
+
+
+function between(min, max) {
+  return Math.floor(
+    Math.random() * (max - min) + min
+  )
+}
+
+
+module.exports = {scrapeHome, readArticleOrComment, scrapeOlder, notifyChannel, between}

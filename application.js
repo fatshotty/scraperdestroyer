@@ -1,0 +1,2 @@
+require('./distruggere');
+require('./instascraper');

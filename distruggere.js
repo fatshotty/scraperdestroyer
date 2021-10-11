@@ -1,4 +1,3 @@
-require('dotenv').config();
 
 const Services = require('./services');
 const Logger = require('./logger');
@@ -8,16 +7,7 @@ const Request = require('./request');
 
 const CronJob = require('cron').CronJob;
 
-const { Telegraf } = require('telegraf');
-const { resolveSrv } = require('dns');
-
-
-const BOT_ID = process.env.BOT_ID;
-const CHAT_ID = process.env.CHAT_ID;
-
 const FILE_PATH = Path.join( __dirname, 'last_post.dat');
-
-const BOT = new Telegraf(BOT_ID)
 
 
 async function saveFile(data) {
@@ -150,9 +140,13 @@ async function notify(article, firstPage, secondPage) {
       return !!item.media 
     });
 
-    let to = between(2000, 6001);
+    let to = Services.between(2000, 6001);
 
-    await notifyChannel(media);
+    try {
+      await Services.notifyChannel(media);
+    } catch(e) {
+      Logger.warn('cannot notify');
+    }
 
     Logger.info('timeout: ', to);
     
@@ -160,55 +154,6 @@ async function notify(article, firstPage, secondPage) {
   });
 }
 
-function between(min, max) {
-  return Math.floor(
-    Math.random() * (max - min) + min
-  )
-}
-
-async function notifyChannel(media) {
-
-  async function noty() {
-    return new Promise( async (resolve, reject) => {
-      try {
-        await BOT.telegram.sendMediaGroup(CHAT_ID, media);
-        resolve(true);
-      } catch (e) {
-        let rsp = e.response;
-        if ( rsp ) {
-          let timeout = null;
-          if ( e.code == 429 ) {
-            let parm = rsp.parameters;
-            if ( parm.retry_after ) {
-              timeout = parm.retry_after;
-            }
-          } else if ( e.code == 400 && rsp.description == 'Bad Request: group send failed' ) {
-            timeout = 30;
-          }
-          if ( timeout ) {
-            setTimeout( () => {
-              resolve(false);
-            }, (timeout + 1) * 1000);
-            Logger.log('wait for', timeout, 'secs');
-            return;
-          }
-        }
-        reject(e);
-      }
-    });
-  }
-
-  try {
-    let res = await noty();
-    if ( res === false ) {
-      await noty();
-    }
-  } catch(e) {
-    Logger.warn('error notifying', e);
-    Logger.warn( JSON.stringify(media) );
-  }
-
-}
 
 
 // notify(

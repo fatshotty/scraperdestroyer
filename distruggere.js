@@ -65,7 +65,7 @@ async function loopArticles(articles, LAST_POST_ID) {
       IDS.push( Number(article.id) );
     }
 
-    if ( IDS.length % 10 == 0 ) {
+    if ( IDS.length > 0 && IDS.length % 10 == 0 ) {
       Logger.info('current article:', article.id);
     }
   }

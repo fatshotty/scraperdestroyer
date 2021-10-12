@@ -164,7 +164,7 @@ async function notify(article, firstPage, secondPage) {
 
 // )
 
-const JOB = new CronJob('0 0 16/21 * * *', start, () => {
+const JOB = new CronJob('0 0 16,21 * * *', start, () => {
   Logger.log('Job completed');
 }, false, 'Europe/Rome', null, true);
 

@@ -262,7 +262,7 @@ const LAST_POST = [{
   }]
 // start();
 
-const JOB = new CronJob('0 0 15/20 * * *', start, () => {
+const JOB = new CronJob('0 0 15,20 * * *', start, () => {
   Logger.log('Job completed');
 }, false, 'Europe/Rome', null, true);
 

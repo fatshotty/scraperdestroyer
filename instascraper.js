@@ -39,6 +39,7 @@ async function start() {
   try {
     profile = await InstaClient.getProfile(PROFILE);
   } catch(e) {
+    Logger.warn(e.stack)
     Logger.warn('cannot get profile', e);
     return;
   }
@@ -262,10 +263,14 @@ const LAST_POST = [{
   }]
 // start();
 
-const JOB = new CronJob('0 0 15,20 * * *', start, () => {
-  Logger.log('Job completed');
-}, false, 'Europe/Rome', null, true);
 
-JOB.start();
+InstaClient.authBySessionId( process.env.INSTA_SESSION_ID ).then( () => {;
+  Logger.info('Insta session authenticated')
+}).finally( () => { 
+  const JOB = new CronJob('0 0 15,20 * * *', start, () => {
+    Logger.log('Job completed');
+  }, false, 'Europe/Rome', null, true);
+  JOB.start() 
+} );
 
 Logger.log('Job ready for instagram');

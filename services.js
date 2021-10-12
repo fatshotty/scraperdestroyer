@@ -1,4 +1,3 @@
-require('dotenv').config();
 const {request} = require('./request');
 const Logger = require('./logger');
 const {JSDOM} = require('jsdom');

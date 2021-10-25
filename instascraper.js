@@ -64,7 +64,7 @@ async function start() {
     }
 
 
-    if ( lpost.caption.indexOf(`#${HASHTAG}`) > -1 ) {
+    if ( lpost.caption.toLowerCase().indexOf(`#${HASHTAG}`) > -1 ) {
 
       Logger.info('post', lpost.shortcode, 'is a', HASHTAG, 'post');
 
@@ -153,7 +153,7 @@ async function start() {
   }
 
   await saveFile( lastTS );
-  Logger.log('last insta post ts is', lastTS);
+  Logger.log('last insta post ts is', lastTS, new Date( lastTS * 1000 ));
 
 }
 

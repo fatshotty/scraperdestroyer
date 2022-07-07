@@ -9,6 +9,11 @@ const ig = new IgApiClient();
 async function login() {
 
   ig.state.generateDevice('fatshotty');
+
+  if (process.env.PROXY) {
+    ig.state.proxyUrl = process.env.PROXY;
+  }
+
   await ig.simulate.preLoginFlow();
 
   Logger.log('login')

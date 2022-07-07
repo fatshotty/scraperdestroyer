@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "patch-package"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "fatshotty",
   "license": "ISC",
@@ -15,8 +14,7 @@
     "got": "^11.8.2",
     "jsdom": "^18.0.0",
     "node-cron": "^3.0.0",
-    "scraper-instagram": "^1.0.17",
-    "patch-package": "^6.4.7",
-    "telegraf": "^4.4.2"
+    "telegraf": "^4.4.2",
+    "inquirer": "8.2.4"
   }
 }

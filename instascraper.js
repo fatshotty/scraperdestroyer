@@ -1,16 +1,17 @@
-const Insta = require('scraper-instagram');
+
 const Logger = require('./logger');
 const Path = require('path');
 const FS = require('fs');
 const Services = require('./services');
 const CronJob = require('cron').CronJob;
+const InstaClient = require('./insta_module');
 
 const PROFILE = 'ilsignordistruggere';
 const HASHTAG = 'pancinahot'
 
 const FILE_PATH = Path.join( __dirname, 'last_post_insta.dat');
 
-const InstaClient = new Insta();
+
 
 async function saveFile(data) {
   FS.writeFileSync( FILE_PATH, `${data}`, 'utf-8');
@@ -24,6 +25,141 @@ async function readFile() {
 }
 
 
+// async function start() {
+
+//   Logger.info('start reading instagram post')
+
+//   let LAST_POST_TS = await readFile();
+//   if ( LAST_POST_TS ) {
+//     LAST_POST_TS = Number( LAST_POST_TS );
+//   } else {
+//     LAST_POST_TS = 0;
+//   }
+
+//   let profile = null;
+//   try {
+//     profile = await InstaClient.getProfile(PROFILE);
+//   } catch(e) {
+//     Logger.warn(e.stack)
+//     Logger.warn('cannot get profile', e);
+//     return;
+//   }
+
+//   Logger.info('got profile and sorting posts');
+
+//   let lastPosts = profile.lastPosts;
+
+//   // lastPosts = LAST_POST;
+
+//   lastPosts.sort( (a, b) => {
+//     return a.timestamp > b.timestamp ? 1 : -1;
+//   });
+
+//   let lastTS = LAST_POST_TS;
+
+//   for ( let lpost of lastPosts ) {
+
+//     if ( LAST_POST_TS >= lpost.timestamp ) {
+//       Logger.info('post', lpost.shortcode, 'is too older');
+//       continue;
+//     }
+
+
+//     if ( lpost.caption.toLowerCase().indexOf(`#${HASHTAG}`) > -1 ) {
+
+//       Logger.info('post', lpost.shortcode, 'is a', HASHTAG, 'post');
+
+//       // found post
+//       let post = null;
+//       try {
+//         post = await InstaClient.getPost( lpost.shortcode );
+//       } catch(e) {
+//         Logger.warn('cannot get post', e);
+//         break;
+//       }
+//       // let post = {
+//       //   "shortcode": "CUf9uqNjl-a",
+//       //   "author": {
+//       //     "id": "23443219",
+//       //     "username": "ilsignordistruggere",
+//       //     "name": "Vincenzo Maisto",
+//       //     "pic": "https://instagram.flin1-2.fna.fbcdn.net/v/t51.2885-19/s150x150/22351721_474761549571603_2158068663620468736_n.jpg?_nc_ht=instagram.flin1-2.fna.fbcdn.net&_nc_ohc=psqACfyJ20cAX9pcPA0&edm=AABBvjUBAAAA&ccb=7-4&oh=60bf4487802f7d8e9373bfb24b62cef1&oe=616B397A&_nc_sid=83d603",
+//       //     "verified": true,
+//       //     "link": "https://www.instagram.com//ilsignordistruggere"
+//       //   },
+//       //   "location": {
+//       //     "id": "213050058",
+//       //     "name": "Milan, Italy",
+//       //     "city": "Milan, Italy"
+//       //   },
+//       //   "contents": [{
+//       //     "type": "photo",
+//       //     "url": "https://instagram.flin1-1.fna.fbcdn.net/v/t51.2885-15/e35/s1080x1080/243493814_453538419368226_4983405841242633805_n.jpg?_nc_ht=instagram.flin1-1.fna.fbcdn.net&_nc_cat=106&_nc_ohc=9Qg_hPkzYeoAX9CEYRv&edm=AABBvjUBAAAA&ccb=7-4&oh=92f42ee30142f0c403dbc42bf1869e45&oe=616AE3C9&_nc_sid=83d603"
+//       //   }, {
+//       //     "type": "photo",
+//       //     "url": "https://instagram.flin1-2.fna.fbcdn.net/v/t51.2885-15/e35/s1080x1080/244242411_403499504564332_4841054788436689117_n.jpg?_nc_ht=instagram.flin1-2.fna.fbcdn.net&_nc_cat=104&_nc_ohc=n-z1t69KCj8AX9tAZTg&edm=AABBvjUBAAAA&ccb=7-4&oh=3bebbeb9a7891930846dde674656f870&oe=616BAFA9&_nc_sid=83d603"
+//       //   }],
+//       //   "tagged": [],
+//       //   "likes": 30553,
+//       //   "caption": "Grazie a questo #pancinahot qui a destra 👉🏻 possiamo apprendere ma tecnica della “sub”. 😱",
+//       //   "hashtags": ["#pancinahot"],
+//       //   "mentions": null,
+//       //   "edited": false,
+//       //   "comments": [{
+//       //     "id": "17955454630510492",
+//       //     "user": "dani.lo71",
+//       //     "content": "Mi sorge una sola domanda:”MA PERCHÉ???”",
+//       //     "timestamp": 1633935386,
+//       //     "hashtags": null,
+//       //     "mentions": null,
+//       //     "likes": 0
+//       //   }, {
+//       //     "id": "17904567335319003",
+//       //     "user": "lideachetimanca",
+//       //     "content": "Soffoconi qui...su rieducational channel",
+//       //     "timestamp": 1633959860,
+//       //     "hashtags": null,
+//       //     "mentions": null,
+//       //     "likes": 0
+//       //   }],
+//       //   "commentCount": 3097,
+//       //   "timestamp": 1633120152,
+//       //   "link": "https://www.instagram.com/p/CUf9uqNjl-a"
+//       // }
+
+//       let contents = post.contents;
+//       if ( contents ) {
+//         let media = contents.map( (item) => {
+//           return {
+//             type: 'photo',
+//             media: item.url
+//           }
+//         });
+//         media[0].caption = post.caption;
+
+//         try {
+//           await notify(media);
+//           lastTS = lpost.timestamp;
+//         } catch(e) {
+//           Logger.warn('cannot notify');
+//         }
+        
+//       } else {
+//         Logger.warn('post', post.shortcode, 'has no contents');
+//       }
+
+//     }
+
+
+//   }
+
+//   await saveFile( lastTS );
+//   Logger.log('last insta post ts is', lastTS, new Date( lastTS * 1000 ));
+
+// }
+
+
+
 async function start() {
 
   Logger.info('start reading instagram post')
@@ -35,128 +171,71 @@ async function start() {
     LAST_POST_TS = 0;
   }
 
-  let profile = null;
-  try {
-    profile = await InstaClient.getProfile(PROFILE);
-  } catch(e) {
-    Logger.warn(e.stack)
-    Logger.warn('cannot get profile', e);
-    return;
-  }
 
   Logger.info('got profile and sorting posts');
 
-  let lastPosts = profile.lastPosts;
+  let lastPosts = await InstaClient.getUserPosts(PROFILE);
 
   // lastPosts = LAST_POST;
 
   lastPosts.sort( (a, b) => {
-    return a.timestamp > b.timestamp ? 1 : -1;
+    return a.taken_at > b.taken_at ? 1 : -1;
   });
 
   let lastTS = LAST_POST_TS;
 
   for ( let lpost of lastPosts ) {
 
-    if ( LAST_POST_TS >= lpost.timestamp ) {
-      Logger.info('post', lpost.shortcode, 'is too older');
+    if ( LAST_POST_TS >= lpost.taken_at ) {
+      Logger.info('post', lpost.code, 'is too older');
       continue;
     }
 
 
-    if ( lpost.caption.toLowerCase().indexOf(`#${HASHTAG}`) > -1 ) {
+    if ( lpost.caption.text.toLowerCase().indexOf(`#${HASHTAG}`) > -1 ) {
 
-      Logger.info('post', lpost.shortcode, 'is a', HASHTAG, 'post');
+      Logger.info('post', lpost.code, 'is a', HASHTAG, 'post');
 
       // found post
-      let post = null;
-      try {
-        post = await InstaClient.getPost( lpost.shortcode );
-      } catch(e) {
-        Logger.warn('cannot get post', e);
-        break;
-      }
-      // let post = {
-      //   "shortcode": "CUf9uqNjl-a",
-      //   "author": {
-      //     "id": "23443219",
-      //     "username": "ilsignordistruggere",
-      //     "name": "Vincenzo Maisto",
-      //     "pic": "https://instagram.flin1-2.fna.fbcdn.net/v/t51.2885-19/s150x150/22351721_474761549571603_2158068663620468736_n.jpg?_nc_ht=instagram.flin1-2.fna.fbcdn.net&_nc_ohc=psqACfyJ20cAX9pcPA0&edm=AABBvjUBAAAA&ccb=7-4&oh=60bf4487802f7d8e9373bfb24b62cef1&oe=616B397A&_nc_sid=83d603",
-      //     "verified": true,
-      //     "link": "https://www.instagram.com//ilsignordistruggere"
-      //   },
-      //   "location": {
-      //     "id": "213050058",
-      //     "name": "Milan, Italy",
-      //     "city": "Milan, Italy"
-      //   },
-      //   "contents": [{
-      //     "type": "photo",
-      //     "url": "https://instagram.flin1-1.fna.fbcdn.net/v/t51.2885-15/e35/s1080x1080/243493814_453538419368226_4983405841242633805_n.jpg?_nc_ht=instagram.flin1-1.fna.fbcdn.net&_nc_cat=106&_nc_ohc=9Qg_hPkzYeoAX9CEYRv&edm=AABBvjUBAAAA&ccb=7-4&oh=92f42ee30142f0c403dbc42bf1869e45&oe=616AE3C9&_nc_sid=83d603"
-      //   }, {
-      //     "type": "photo",
-      //     "url": "https://instagram.flin1-2.fna.fbcdn.net/v/t51.2885-15/e35/s1080x1080/244242411_403499504564332_4841054788436689117_n.jpg?_nc_ht=instagram.flin1-2.fna.fbcdn.net&_nc_cat=104&_nc_ohc=n-z1t69KCj8AX9tAZTg&edm=AABBvjUBAAAA&ccb=7-4&oh=3bebbeb9a7891930846dde674656f870&oe=616BAFA9&_nc_sid=83d603"
-      //   }],
-      //   "tagged": [],
-      //   "likes": 30553,
-      //   "caption": "Grazie a questo #pancinahot qui a destra 👉🏻 possiamo apprendere ma tecnica della “sub”. 😱",
-      //   "hashtags": ["#pancinahot"],
-      //   "mentions": null,
-      //   "edited": false,
-      //   "comments": [{
-      //     "id": "17955454630510492",
-      //     "user": "dani.lo71",
-      //     "content": "Mi sorge una sola domanda:”MA PERCHÉ???”",
-      //     "timestamp": 1633935386,
-      //     "hashtags": null,
-      //     "mentions": null,
-      //     "likes": 0
-      //   }, {
-      //     "id": "17904567335319003",
-      //     "user": "lideachetimanca",
-      //     "content": "Soffoconi qui...su rieducational channel",
-      //     "timestamp": 1633959860,
-      //     "hashtags": null,
-      //     "mentions": null,
-      //     "likes": 0
-      //   }],
-      //   "commentCount": 3097,
-      //   "timestamp": 1633120152,
-      //   "link": "https://www.instagram.com/p/CUf9uqNjl-a"
-      // }
+      let post = lpost;
 
-      let contents = post.contents;
-      if ( contents ) {
-        let media = contents.map( (item) => {
+      let carousel_media = [];
+
+      if ( !post.carousel_media_count ) {
+        carousel_media.push(post.image_versions2);
+      } else {
+        carousel_media = post.carousel_media.map(cm => {
+          return cm.image_versions2
+        });
+      }
+
+      if ( carousel_media.length > 0 ) {
+        let media = carousel_media.map( (item) => {
           return {
             type: 'photo',
-            media: item.url
+            media: item.candidates[0].url
           }
         });
-        media[0].caption = post.caption;
+        media[0].caption = post.caption.text;
 
         try {
           await notify(media);
-          lastTS = lpost.timestamp;
+          lastTS = lpost.taken_at;
         } catch(e) {
           Logger.warn('cannot notify');
         }
-        
+
       } else {
-        Logger.warn('post', post.shortcode, 'has no contents');
+        Logger.warn('post', post.code, 'has no contents');
       }
 
     }
-
-
   }
 
   await saveFile( lastTS );
   Logger.log('last insta post ts is', lastTS, new Date( lastTS * 1000 ));
 
 }
-
 
 async function notify(media) {
   return new Promise( async (resolve, reject) => {
@@ -264,13 +343,25 @@ const LAST_POST = [{
 // start();
 
 
-InstaClient.authBySessionId( process.env.INSTA_SESSION_ID ).then( () => {;
-  Logger.info('Insta session authenticated')
-}).finally( () => { 
+// InstaClient.authBySessionId( process.env.INSTA_SESSION_ID ).then( () => {;
+//   Logger.info('Insta session authenticated');
+//   const JOB = new CronJob('0 0 15,20 * * *', start, () => {
+//     Logger.log('Job completed');
+//   }, false, 'Europe/Rome', null, true);
+//   JOB.start()
+// })
+// .catch((e) => {
+//   Logger.error('cannot login into instagram', e);
+// });
+
+InstaClient.login().then( () => {
+  Logger.info('Insta session authenticated');
   const JOB = new CronJob('0 0 15,20 * * *', start, () => {
     Logger.log('Job completed');
   }, false, 'Europe/Rome', null, true);
-  JOB.start() 
-} );
+  JOB.start();
+}).catch((e) => {
+  Logger.error('cannot login into instagram', e);
+});
 
 Logger.log('Job ready for instagram');
